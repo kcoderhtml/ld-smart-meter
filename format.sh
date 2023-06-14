@@ -23,5 +23,17 @@ done
 # Add square brackets to the start and end of the array
 array=("[" "${array[@]/%/ }" "]")
 
-#save the array to a file
-printf "%s\n" "${array[@]}" | jq . > $file
+# Run the array through jq and write the output to a temporary file
+tmpfile=$(mktemp)
+printf "%s\n" "${array[@]}" | jq . > "$tmpfile"
+
+# Check if jq was successful
+if [ $? -eq 0 ]; then
+    # Move the temporary file to the output file
+    mv "$tmpfile" "$file"
+else
+    # Print an error message and delete the temporary file
+    echo "-------------------------"
+    echo "jq failed to process the input file"
+    rm "$tmpfile"
+fi
