@@ -1,8 +1,12 @@
 #!/bin/bash
 
-# The input file
-# read -p "Enter the file name: " file
-file="test.json"
+# The input file test for argument or user input
+if [ $# -eq 0 ]; then
+    echo "No arguments provided"
+    read -p "Enter the file name: " file
+else
+    file=$1
+fi
 
 # Loop over the objects and create an array
 array=()
@@ -19,5 +23,5 @@ done
 # Add square brackets to the start and end of the array
 array=("[" "${array[@]/%/ }" "]")
 
-# Print the formatted array
-printf '%s\n' "${array[@]}"
+#save the array to a file
+printf "%s\n" "${array[@]}" | jq . > $file
