@@ -1,38 +1,14 @@
 #!/bin/bash
 
-# The input file
-# read -p "Enter the file name: " file
-file="test.json"
+input='{Time:2023-06-14T15:23:29.598 SCM:{ID:35880774 Type:12 Tamper:{Phy:02 Enc:00} Consumption: 555070 CRC:0x4989}}'
 
-# Loop over the objects and create an array
-array=()
-while read -r line; do
-  array+=("$line")
-done < "$file"
+# Removing unnecessary characters from the input
+input=$(echo $input | sed 's/{Time:\([^ ]*\)/{"Time":"\1"/' | sed 's/ SCM:{ID:\([^ ]*\)/ "SCM":{"ID":"\1"/' | sed 's/ Type:\([^ ]*\)/ "Type":"\1"/' | sed 's/ Tamper:{Phy:\([^ ]*\)/ "Tamper":{"Phy":"\1"/' | sed 's/ Enc:\([^}]*\)/ "Enc":"\1"/' | sed 's/ Consumption: \([^ ]*\)/ "Consumption":"\1"/' | sed 's/ CRC:\([^}]*\)/ "CRC":"\1"/')
 
-# Add commas to the array
-for (( i=0; i<${#array[@]}-1; i++ )); do
-  array[$i]="${array[$i]},"
-done
+# Adding double quotes to the keys and values
+# input=$(echo $input | sed 's/{Time/{ "Time/g' | sed 's/ SCM/ "SCM/g' | sed 's/ ID/ "ID/g' | sed 's/ Type/ "Type/g' | sed 's/ Tamper/ "Tamper/g' | sed 's/ Phy/ "Phy/g' | sed 's/ Enc/ "Enc/g' | sed 's/ Consumption/ "Consumption/g' | sed 's/ CRC/ "CRC/g' | sed 's/}/" }/g')
 
-# Enclose the Time field in quotes and format the SCM field
-for (( i=0; i<${#array[@]}; i++ )); do
-  array[$i]=$(echo "${array[$i]}" | sed 's/Time:\(.*\) SCM:/{ "Time":"\1", "SCM":/')
-  array[$i]=$(echo "${array[$i]}" | sed 's/ ID:/{ "ID":"/')
-  array[$i]=$(echo "${array[$i]}" | sed 's/ Type:/", "Type":"/')
-  array[$i]=$(echo "${array[$i]}" | sed 's/ Tamper:/{ "Tamper":/')
-  array[$i]=$(echo "${array[$i]}" | sed 's/ Phy:/{ "Phy":"/')
-  array[$i]=$(echo "${array[$i]}" | sed 's/ Enc:/", "Enc":"/')
-  array[$i]=$(echo "${array[$i]}" | sed 's/ Consumption:/"}, "Consumption":/')
-  array[$i]=$(echo "${array[$i]}" | sed 's/ CRC:/, "CRC":"/')
-  array[$i]=$(echo "${array[$i]}" | sed 's/$/"} }/')
-done
+# Adding curly braces at the start and end
+input="[$input]"
 
-# Add square brackets to the start and end of the array
-array=( "[" "${array[@]/%/ }" "]" )
-
-# Save data to a file
-echo "${array[@]}" > output.json
-
-# Print the formatted array
-jq . output.json
+echo $input
