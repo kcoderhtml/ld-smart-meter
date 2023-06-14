@@ -14,5 +14,8 @@ for (( i=0; i<${#array[@]}-1; i++ )); do
   array[$i]="${array[$i]},"
 done
 
+# Add square brackets to the start and end of the array
+array=( "[" "${array[@]/%/ }" "]" )
+
 # Print the formatted array
 printf '%s\n' "${array[@]}"
