@@ -38,6 +38,7 @@ else
     line_num=$(cat "$tmpfile" | grep -oE 'line [0-9]+' | grep -oE '[0-9]+')
 
     line=$(printf "%s\n" "${array[@]}" | sed "${line_num}q;d")
+    line_num=$(($line_num - 1))
     unfilteredline=$(cat $file | sed "${line_num}q;d")
 
     echo "Error Line: $line"
